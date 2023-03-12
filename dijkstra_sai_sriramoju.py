@@ -35,6 +35,11 @@ def shapes(map, image, clearance):
 
     return image, map
 
+def validpoint(x,y,map):
+    if map[x,y] == 0:
+        return True
+    else:
+        return False
 
 def MoveLeft(x,y,TempMap):
     if(0<= (x-1) <TempMap.shape[1] and (0 <= y < TempMap.shape[0])):
@@ -43,7 +48,6 @@ def MoveLeft(x,y,TempMap):
     return None
 
 def MoveRight(x,y,TempMap):
-    print(x,y)
     if(0<= (x+1) <TempMap.shape[1] and (0 <= y < TempMap.shape[0])):
         if TempMap[x+1][y] == 0:
             return [x+1, y], 1
@@ -125,7 +129,6 @@ def get_new_nodes_cost(current_point, TempMap):
         nodes.append(point)
     
     return costs, nodes
-    
 
 def dijkstra_algo(start, goal, map, image, C2C):
     open = PriorityQueue()
@@ -151,6 +154,7 @@ def dijkstra_algo(start, goal, map, image, C2C):
                     C2C[node[0],node[1]] = temp_cost
                     parent[(current[0],current[1])].append((node[0], node[1]))
                     open.put((temp_cost, node))
+
         
 
 if __name__ == '__main__':
@@ -160,12 +164,28 @@ if __name__ == '__main__':
     clearance = 5
     img, map = shapes(map, image, clearance)
     CostToCome[map!=0] = -1
-    start = [0,0]
-    end = [50,50]
+
+    while True:
+        print('Enter the start points as x,y: ')
+        points_start = input()
+        x_start = int(points_start.split(",")[0])
+        y_start = int(points_start.split(",")[1])
+
+        print('Enter the goal points as x,y: ')
+        points_goal = input()
+        x_goal = int(points_goal.split(",")[0])
+        y_goal = int(points_goal.split(",")[1])
+
+        if validpoint(x_start,y_start, map) and validpoint(x_goal,y_goal, map):
+            break
+        else:
+            print("Please enter the points which are in free space!")
+            continue
+
+    start = [x_start, y_start]
+    end = [x_goal, y_goal]
     dijkstra_algo(start, end, map, image, CostToCome)
-    # flip = img[::-1,:,:]
-    # cv2.imshow('frame', image)
-    # cv2.waitKey(0)
+
 
     
 
