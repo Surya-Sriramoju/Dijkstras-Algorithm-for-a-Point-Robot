@@ -1,10 +1,12 @@
 import numpy as np
 import cv2 
 from queue import PriorityQueue
+import time
+from collections import defaultdict
 
 def shapes(map, image, clearance):
     ##hexagon##
-    hexagon_vertices = [[300,125-75],[365,125-37],[365,125+37],[300,125+75],[300-65,125+37],[300-65,125-37]]
+    hexagon_vertices = [[300,50],[365,88],[365,162],[300,200],[235,162],[235,88]]
     hexagon_vertices = np.array(hexagon_vertices)
     map = cv2.fillPoly(map, [hexagon_vertices], color=255)
     map = cv2.polylines(map, [hexagon_vertices], isClosed=True, color=255, thickness=clearance-2)
@@ -31,19 +33,87 @@ def shapes(map, image, clearance):
     image = cv2.fillPoly(image, [triangle_vertices], color=(255,255,0))
     image = cv2.polylines(image, [triangle_vertices], isClosed=True, color=(255,255,255), thickness=clearance-2)
 
-
     return image, map
 
 
-def dijkstra_algo():
-    pass
+def MoveLeft(x,y,TempMap):
+    if(0<= (x-1) <TempMap.shape[1] and (0 <= y < TempMap.shape[0])):
+        if TempMap[x-1,y] == 0:
+            return [x-1, y] , 1
+    return None
+
+def MoveRight(x,y,TempMap):
+    if(0<= (x+1) <TempMap.shape[1] and (0 <= y < TempMap.shape[0])):
+        if TempMap[x+1,y] == 0:
+            return [x+1, y], 1
+    return None
+
+def MoveUp(x,y,TempMap):
+    if(0<= x <TempMap.shape[1] and (0 <= (y+1) < TempMap.shape[0])):
+        if TempMap[x,y+1] == 0:
+            return [x, y+1], 1
+    return None
+
+def MoveDown(x,y,TempMap):
+    if(0<= x <TempMap.shape[1] and (0 <= (y-1) < TempMap.shape[0])):
+        if TempMap[x,y-1] == 0:
+            return [x, y-1], 1
+    return None
+
+def MoveLeftDiagUp(x,y,TempMap):
+    if(0<= (x-1) <TempMap.shape[1] and (0 <= (y+1) < TempMap.shape[0])):
+        if TempMap[x-1,y+1] == 0:
+            return [x-1, y+1], 1.4
+    return None
+
+def MoveLeftDiagDown(x,y,TempMap):
+    if(0<= (x-1) <TempMap.shape[1] and (0 <= (y-1) < TempMap.shape[0])):
+        if TempMap[x-1,y-1] == 0:
+            return [x-1, y-1], 1.4
+    return None
+
+def MoveRightDiagUp(x,y,TempMap):
+    if(0<= (x+1) <TempMap.shape[1] and (0 <= (y+1) < TempMap.shape[0])):
+        if TempMap[x+1,y+1] == 0:
+            return [x+1, y+1], 1.4
+    return None
+
+def MoveRightDiagUp(x,y,TempMap):
+    if(0<= (x+1) <TempMap.shape[1] and (0 <= (y-1) < TempMap.shape[0])):
+        if TempMap[x+1,y-1] == 0:
+            return [x+1, y-1], 1.4
+    return None
+
+
+
+def dijkstra_algo(start, goal, map, image, C2C):
+    open = PriorityQueue()
+    closed = []
+    C2C[start[0],start[1]] = 0
+    open.put(0,start)
+    parent = defaultdict(list)
+
+    while True:
+        dummy,current = open.get()
+        if current not in closed:
+            closed.append(current)
+        
+        if current == goal:
+            print('Goal Reached!')
+        
+        
 
 if __name__ == '__main__':
     map = np.zeros((250, 600))
     image = np.zeros((250, 600,3), dtype=np.uint8)
+    CostToCome = np.full_like(map, np.inf)
     clearance = 5
     img, map = shapes(map, image, clearance)
-    cv2.imshow("Hexagon with Border", image)
+    CostToCome[map!=0] = -1
+    flip = img[::-1,:,:]
+    cv2.imshow('frame', image)
     cv2.waitKey(0)
+
+    
 
 
