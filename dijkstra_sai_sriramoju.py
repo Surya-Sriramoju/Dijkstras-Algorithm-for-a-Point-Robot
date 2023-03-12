@@ -36,56 +36,56 @@ def shapes(map, image, clearance):
     return image, map
 
 def validpoint(x,y,map):
-    if map[x,y] == 0:
+    if map[y,x] == 0:
         return True
     else:
         return False
 
 def MoveLeft(x,y,TempMap):
     if(0<= (x-1) <TempMap.shape[1] and (0 <= y < TempMap.shape[0])):
-        if TempMap[x-1][y] == 0:
+        if TempMap[y][x-1] == 0:
             return [x-1, y] , 1
     return None
 
 def MoveRight(x,y,TempMap):
     if(0<= (x+1) <TempMap.shape[1] and (0 <= y < TempMap.shape[0])):
-        if TempMap[x+1][y] == 0:
+        if TempMap[y][x+1] == 0:
             return [x+1, y], 1
     return None
 
 def MoveUp(x,y,TempMap):
     if(0<= x <TempMap.shape[1] and (0 <= (y+1) < TempMap.shape[0])):
-        if TempMap[x][y+1] == 0:
+        if TempMap[y+1][x] == 0:
             return [x, y+1], 1
     return None
 
 def MoveDown(x,y,TempMap):
     if(0<= x <TempMap.shape[1] and (0 <= (y-1) < TempMap.shape[0])):
-        if TempMap[x][y-1] == 0:
+        if TempMap[y-1][x] == 0:
             return [x, y-1], 1
     return None
 
 def MoveLeftDiagUp(x,y,TempMap):
     if(0<= (x-1) <TempMap.shape[1] and (0 <= (y+1) < TempMap.shape[0])):
-        if TempMap[x-1][y+1] == 0:
+        if TempMap[y+1][x-1] == 0:
             return [x-1, y+1], 1.4
     return None
 
 def MoveLeftDiagDown(x,y,TempMap):
     if(0<= (x-1) <TempMap.shape[1] and (0 <= (y-1) < TempMap.shape[0])):
-        if TempMap[x-1][y-1] == 0:
+        if TempMap[y-1][x-1] == 0:
             return [x-1, y-1], 1.4
     return None
 
 def MoveRightDiagUp(x,y,TempMap):
     if(0<= (x+1) <TempMap.shape[1] and (0 <= (y+1) < TempMap.shape[0])):
-        if TempMap[x+1][y+1] == 0:
+        if TempMap[y+1][x+1] == 0:
             return [x+1, y+1], 1.4
     return None
 
 def MoveRightDiagDown(x,y,TempMap):
     if(0<= (x+1) <TempMap.shape[1] and (0 <= (y-1) < TempMap.shape[0])):
-        if TempMap[x+1][y-1] == 0:
+        if TempMap[y-1][x+1] == 0:
             return [x+1, y-1], 1.4
     return None
 
@@ -170,17 +170,24 @@ if __name__ == '__main__':
         points_start = input()
         x_start = int(points_start.split(",")[0])
         y_start = int(points_start.split(",")[1])
+        
 
         print('Enter the goal points as x,y: ')
+        
         points_goal = input()
         x_goal = int(points_goal.split(",")[0])
         y_goal = int(points_goal.split(",")[1])
+        
+        try:
+            if validpoint(x_start,y_start, map) and validpoint(x_goal,y_goal, map):
+                break
+        
+            else:
+                print("Please enter the points which are in free space!")
+                continue
+        except:
+            print("Dimensions more than the given map, try again!")
 
-        if validpoint(x_start,y_start, map) and validpoint(x_goal,y_goal, map):
-            break
-        else:
-            print("Please enter the points which are in free space!")
-            continue
 
     start = [x_start, y_start]
     end = [x_goal, y_goal]
