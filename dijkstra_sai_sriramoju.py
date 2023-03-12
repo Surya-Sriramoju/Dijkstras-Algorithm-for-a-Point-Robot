@@ -38,69 +38,119 @@ def shapes(map, image, clearance):
 
 def MoveLeft(x,y,TempMap):
     if(0<= (x-1) <TempMap.shape[1] and (0 <= y < TempMap.shape[0])):
-        if TempMap[x-1,y] == 0:
+        if TempMap[x-1][y] == 0:
             return [x-1, y] , 1
     return None
 
 def MoveRight(x,y,TempMap):
+    print(x,y)
     if(0<= (x+1) <TempMap.shape[1] and (0 <= y < TempMap.shape[0])):
-        if TempMap[x+1,y] == 0:
+        if TempMap[x+1][y] == 0:
             return [x+1, y], 1
     return None
 
 def MoveUp(x,y,TempMap):
     if(0<= x <TempMap.shape[1] and (0 <= (y+1) < TempMap.shape[0])):
-        if TempMap[x,y+1] == 0:
+        if TempMap[x][y+1] == 0:
             return [x, y+1], 1
     return None
 
 def MoveDown(x,y,TempMap):
     if(0<= x <TempMap.shape[1] and (0 <= (y-1) < TempMap.shape[0])):
-        if TempMap[x,y-1] == 0:
+        if TempMap[x][y-1] == 0:
             return [x, y-1], 1
     return None
 
 def MoveLeftDiagUp(x,y,TempMap):
     if(0<= (x-1) <TempMap.shape[1] and (0 <= (y+1) < TempMap.shape[0])):
-        if TempMap[x-1,y+1] == 0:
+        if TempMap[x-1][y+1] == 0:
             return [x-1, y+1], 1.4
     return None
 
 def MoveLeftDiagDown(x,y,TempMap):
     if(0<= (x-1) <TempMap.shape[1] and (0 <= (y-1) < TempMap.shape[0])):
-        if TempMap[x-1,y-1] == 0:
+        if TempMap[x-1][y-1] == 0:
             return [x-1, y-1], 1.4
     return None
 
 def MoveRightDiagUp(x,y,TempMap):
     if(0<= (x+1) <TempMap.shape[1] and (0 <= (y+1) < TempMap.shape[0])):
-        if TempMap[x+1,y+1] == 0:
+        if TempMap[x+1][y+1] == 0:
             return [x+1, y+1], 1.4
     return None
 
-def MoveRightDiagUp(x,y,TempMap):
+def MoveRightDiagDown(x,y,TempMap):
     if(0<= (x+1) <TempMap.shape[1] and (0 <= (y-1) < TempMap.shape[0])):
-        if TempMap[x+1,y-1] == 0:
+        if TempMap[x+1][y-1] == 0:
             return [x+1, y-1], 1.4
     return None
 
+def get_new_nodes_cost(current_point, TempMap):
+    costs = []
+    nodes = []
+    x = current_point[0]
+    y = current_point[1]
 
+    if MoveLeft(x,y,TempMap) != None:
+        point, cost = MoveLeft(x,y,TempMap)
+        costs.append(cost)
+        nodes.append(point)
+    if MoveRight(x,y,TempMap) != None:
+        point, cost = MoveRight(x,y,TempMap)
+        costs.append(cost)
+        nodes.append(point)
+    if MoveUp(x,y,TempMap) != None:
+        point, cost = MoveUp(x,y,TempMap)
+        costs.append(cost)
+        nodes.append(point)
+    if MoveDown(x,y,TempMap) != None:
+        point, cost = MoveDown(x,y,TempMap)
+        costs.append(cost)
+        nodes.append(point)
+    if MoveLeftDiagUp(x,y,TempMap) != None:
+        point, cost = MoveLeftDiagUp(x,y,TempMap)
+        costs.append(cost)
+        nodes.append(point)
+    if MoveLeftDiagDown(x,y,TempMap) != None:
+        point, cost = MoveLeftDiagDown(x,y,TempMap)
+        costs.append(cost)
+        nodes.append(point)
+    if MoveRightDiagUp(x,y,TempMap) != None:
+        point, cost = MoveRightDiagUp(x,y,TempMap)
+        costs.append(cost)
+        nodes.append(point)
+    if MoveRightDiagDown(x,y,TempMap) != None:
+        point, cost = MoveRightDiagDown(x,y,TempMap)
+        costs.append(cost)
+        nodes.append(point)
+    
+    return costs, nodes
+    
 
 def dijkstra_algo(start, goal, map, image, C2C):
     open = PriorityQueue()
     closed = []
     C2C[start[0],start[1]] = 0
-    open.put(0,start)
+    open.put((0,start))
     parent = defaultdict(list)
+    i = 0
 
-    while True:
-        dummy,current = open.get()
+    while not open.empty():
+        _,current = open.get()
         if current not in closed:
             closed.append(current)
-        
+
         if current == goal:
             print('Goal Reached!')
-        
+            break
+        costs, nodes = get_new_nodes_cost(current, map)
+        for (cost, node) in zip(costs, nodes):
+            if node not in closed:
+                temp_cost = C2C[current[0],current[1]] + cost
+                if temp_cost < C2C[node[0],node[1]]:
+                    C2C[node[0],node[1]] = temp_cost
+                    parent[(current[0],current[1])].append((node[0], node[1]))
+                    open.put((temp_cost, node))
         
 
 if __name__ == '__main__':
@@ -110,9 +160,12 @@ if __name__ == '__main__':
     clearance = 5
     img, map = shapes(map, image, clearance)
     CostToCome[map!=0] = -1
-    flip = img[::-1,:,:]
-    cv2.imshow('frame', image)
-    cv2.waitKey(0)
+    start = [0,0]
+    end = [50,50]
+    dijkstra_algo(start, end, map, image, CostToCome)
+    # flip = img[::-1,:,:]
+    # cv2.imshow('frame', image)
+    # cv2.waitKey(0)
 
     
 
